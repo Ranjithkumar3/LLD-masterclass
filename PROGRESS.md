@@ -50,8 +50,8 @@ Current gaps:
 | 01:30 - 01:45 | Factory and Builder patterns | Completed |
 | 01:45 - 02:00 | State and Observer patterns | Completed |
 | 02:00 - 02:20 | Parking Lot mini design | Completed |
-| 02:20 - 02:40 | BookMyShow mini design | Not Started |
-| 02:40 - 03:00 | Splitwise mini design and final checklist | Not Started |
+| 02:20 - 02:40 | BookMyShow mini design | Completed |
+| 02:40 - 03:00 | Splitwise mini design and final checklist | Completed |
 
 ## Phase 2: Core Masterclass Expansion
 
@@ -455,7 +455,7 @@ ParkingLot contains floors, floors contain slots, occupied slots hold vehicles, 
 
 ### 10. BookMyShow Mini Design
 
-Status: Not Started
+Status: Completed
 
 Exercise:
 
@@ -467,24 +467,28 @@ Focus especially on preventing double booking.
 My Answer:
 
 ```text
-TODO
+Assumptions: users register/login, select movie/theatre/show/seats, pay, and receive ticket; fixed pricing and schedules.
+Classes: Movie, Theatre, Screen, Seat, Customer, Ticket, Booking.
+Relationships: Theatre has screens; screens have seats; movie is associated with screen/theatre; customer has booking; seat is booked or vacant.
+Services: BookingService, PricingService, NotificationService, CancellationService, RegistrationService.
+Double-booking: lock the seat until payment succeeds; otherwise release it.
 ```
 
 Review:
 
 ```text
-TODO
+Strong user flow and temporary-lock idea. Add Show, ShowSeat, and Payment. ShowSeat availability is per show, not the physical seat globally. Use an atomic, expiring seat hold rather than holding a database lock while payment occurs.
 ```
 
 Improved Design Answer:
 
 ```text
-TODO
+Show links movie, screen, and time. ShowSeat links a physical seat to a show and has AVAILABLE, HELD, and BOOKED states. Atomically change available seats to an expiring held state; confirm to booked after valid payment; release on failure/expiry. Use State for lifecycle and Observer for booking-confirmed reactions.
 ```
 
 ### 11. Splitwise Mini Design
 
-Status: Not Started
+Status: Completed
 
 Exercise:
 
@@ -496,19 +500,23 @@ Include equal, exact, and percentage split handling.
 My Answer:
 
 ```text
-TODO
+Assumptions: users register/login, create groups, post expenses, choose exact/equal/percentage splits, join groups, and settle an expense.
+Classes: User, Group, Expense.
+Relationships: Group has users; Group has expense; User has expense balance.
+Patterns: Strategy for split.
+Edge case: User-friends association.
 ```
 
 Review:
 
 ```text
-TODO
+Correct core domain and Strategy choice. Add Split, Money, Balance, and Settlement; add services for expenses, split calculation, balances, and settlements. User-friends is a future relationship, not an edge case; use invalid exact/percentage totals or rounding as an edge case.
 ```
 
 Improved Design Answer:
 
 ```text
-TODO
+Expense has a payer and many Splits; each Split belongs to a user. Balance records what one user owes another; Settlement reduces it. Use SplitStrategy with equal/exact/percentage implementations. Validate exact amounts sum to the total, percentage values total 100, and define a rounding rule.
 ```
 
 ## Final LLD Checklist
