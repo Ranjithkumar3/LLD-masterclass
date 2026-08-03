@@ -41,15 +41,15 @@ Current gaps:
 
 | Time | Topic | Status |
 |---|---|---|
-| 00:00 - 00:15 | LLD approach framework | Not Started |
-| 00:15 - 00:30 | Entity, value object, DTO, repository | Not Started |
-| 00:30 - 00:45 | Interface vs abstract class, composition | Not Started |
-| 00:45 - 01:00 | Association, aggregation, composition | Not Started |
-| 01:00 - 01:15 | SRP, OCP, DIP | Not Started |
-| 01:15 - 01:30 | Strategy pattern | Not Started |
-| 01:30 - 01:45 | Factory and Builder patterns | Not Started |
-| 01:45 - 02:00 | State and Observer patterns | Not Started |
-| 02:00 - 02:20 | Parking Lot mini design | Not Started |
+| 00:00 - 00:15 | LLD approach framework | Completed |
+| 00:15 - 00:30 | Entity, value object, DTO, repository | Completed |
+| 00:30 - 00:45 | Interface vs abstract class, composition | Completed |
+| 00:45 - 01:00 | Association, aggregation, composition | Completed |
+| 01:00 - 01:15 | SRP, OCP, DIP | Completed |
+| 01:15 - 01:30 | Strategy pattern | Completed |
+| 01:30 - 01:45 | Factory and Builder patterns | Completed |
+| 01:45 - 02:00 | State and Observer patterns | Completed |
+| 02:00 - 02:20 | Parking Lot mini design | Completed |
 | 02:20 - 02:40 | BookMyShow mini design | Not Started |
 | 02:40 - 03:00 | Splitwise mini design and final checklist | Not Started |
 
@@ -99,7 +99,7 @@ Current gaps:
 
 ### 1. LLD Approach Framework
 
-Status: Not Started
+Status: Completed
 
 Exercise:
 
@@ -114,24 +114,42 @@ For Parking Lot, write:
 My Answer:
 
 ```text
-TODO
+Clarifying questions:
+1. What are the types of vehicles allowed?
+2. Does each vehicle type require a dedicated slot, or can any vehicle park in any slot?
+3. What is the pricing strategy?
+4. How many floors and slots per floor exist by vehicle type?
+5. Should customer details, parked vehicles, and parking history be stored?
+
+Core entities:
+ParkingLot, ParkingFloor, ParkingSlot, Ticket, Pricing, Vehicle
+
+Main use cases:
+1. Park a vehicle and provide a ticket ID.
+2. Unpark a vehicle, calculate charges using the ticket, and close the ticket.
+
+Future extensions:
+Offers and discounts.
 ```
 
 Review:
 
 ```text
-TODO
+Strong requirement questions and core domain entities. Pricing is usually a strategy or service, not an entity. Add availability as a third use case and describe unparking as closing a paid/completed ticket rather than expiring it.
 ```
 
 Improved Design Answer:
 
 ```text
-TODO
+Core entities: ParkingLot, ParkingFloor, ParkingSlot, Vehicle, ParkingTicket.
+Variable behavior: PricingStrategy/FeeCalculator.
+Main use cases: park and issue ticket; calculate, pay, and close ticket at exit; view availability.
+Future extensions: reservations; multiple payment providers or membership discounts.
 ```
 
 ### 2. Entity, Value Object, DTO, Repository
 
-Status: Not Started
+Status: Completed
 
 Exercise:
 
@@ -149,24 +167,33 @@ ExpenseRequest
 My Answer:
 
 ```text
-TODO
+User - Entity - has a unique identity
+Group - Entity - has a unique identity
+Expense - Value object - can be used to store data values
+Money - Value object - kind of an enum
+Split - Value object - does not require a unique identity
+Balance - DTO - can be calculated from repository and entity
+ExpenseRequest - Repository - fetched from DB
 ```
 
 Review:
 
 ```text
-TODO
+User, Group, and Split were correctly classified. Expense is an entity because it has identity and history. Money is a value object but not an enum. Balance is usually a value object/read-model value. ExpenseRequest is a DTO; a repository is a class such as ExpenseRepository that persists expenses.
 ```
 
 Improved Design Answer:
 
 ```text
-TODO
+Entities: User, Group, Expense.
+Value objects: Money, Split, Balance.
+DTO: ExpenseRequest.
+Repository examples (not listed): UserRepository, GroupRepository, ExpenseRepository.
 ```
 
 ### 3. Interface vs Abstract Class And Composition
 
-Status: Not Started
+Status: Completed
 
 Exercise:
 
@@ -180,24 +207,28 @@ For payment methods like UPI, Card, Wallet, Cash:
 My Answer:
 
 ```text
-TODO
+1. Interface. They all pay differently and share only the behavior.
+2. Add an abstract class called OnlinePayment. UpiPayment, CardPayment, and WalletPayment extend it because they share transactionId and createReceipt() logic. CashPayment does not extend it.
+3. UpiPayment has a UpiGateway. CardPayment has a CardValidator.
 ```
 
 Review:
 
 ```text
-TODO
+Correct. PaymentMethod is the common interface. OnlinePayment is an optional abstract class for shared online-payment state and behavior. Both composition examples are clear has-a relationships.
 ```
 
 Improved Design Answer:
 
 ```text
-TODO
+PaymentMethod: interface for pay(amount).
+OnlinePayment: abstract class only when online payment types share transactionId and receipt logic.
+Composition: UpiPayment has UpiGateway; CardPayment has CardValidator.
 ```
 
 ### 4. Class Relationships
 
-Status: Not Started
+Status: Completed
 
 Exercise:
 
@@ -213,24 +244,28 @@ Classify these BookMyShow relationships:
 My Answer:
 
 ```text
-TODO
+1. Theatre - Screen: Aggregation - whole-part relationship but weak.
+2. Screen - Seat: Composition - strong whole-part relationship.
+3. Movie - Show: Association - both can be independent.
+4. User - Booking: Association - both can be independent.
+5. Booking - Payment: Composition - every booking should have a payment.
 ```
 
 Review:
 
 ```text
-TODO
+All classifications are correct. For Booking-Payment, use lifecycle as the reason: payment belongs to the booking in this simplified model. A booking may be pending payment, so payment is not necessarily present at creation.
 ```
 
 Improved Design Answer:
 
 ```text
-TODO
+Theatre-Screen: aggregation; Screen-Seat: composition; Movie-Show: association; User-Booking: association; Booking-Payment: composition in the simplified model.
 ```
 
 ### 5. SOLID
 
-Status: Not Started
+Status: Completed
 
 Exercise:
 
@@ -243,24 +278,35 @@ Split responsibilities into better classes and mention which SOLID principles im
 My Answer:
 
 ```text
-TODO
+BookingService - saves a booking
+PricingService - calculates price
+PaymentService - accepts payment
+NotificationService - sends notification
+
+SRP - all four classes
+OCP - PricingStrategy, NotificationSender
+DIP - PaymentMethod, PricingStrategy, SeatSelectionService, BookingRepo, NotificationSender
 ```
 
 Review:
 
 ```text
-TODO
+Good responsibility split. Add seat reservation and repository responsibilities. OCP means adding new implementations without modifying BookingService. DIP requires BookingService to depend on abstractions; services/repositories on the list need contracts/interfaces when their implementation may vary.
 ```
 
 Improved Design Answer:
 
 ```text
-TODO
+BookingService coordinates; SeatSelectionService reserves seats; PricingStrategy calculates price; PaymentMethod processes payment; BookingRepository persists bookings; NotificationSender confirms the booking.
+
+SRP: one focused responsibility each.
+OCP: add new pricing/payment/notification implementations without editing the coordinator.
+DIP: BookingService depends on PricingStrategy, PaymentMethod, BookingRepository, and NotificationSender abstractions.
 ```
 
 ### 6. Strategy Pattern
 
-Status: Not Started
+Status: Completed
 
 Exercise:
 
@@ -277,24 +323,30 @@ No full code required.
 My Answer:
 
 ```text
-TODO
+Interface: SplitStrategy
+Method: splitExpense()
+Implementations: EqualSplitStrategy, ExactSplitStrategy, PercentageSplitStrategy
+Used by: Main service that splits an expense based on split type
 ```
 
 Review:
 
 ```text
-TODO
+Correct pattern structure. Name the caller ExpenseService or SplitService. Refine the method to calculate allocations because saving the expense is the service's responsibility, not the strategy's.
 ```
 
 Improved Design Answer:
 
 ```text
-TODO
+Interface: SplitStrategy
+Method: calculateSplits(totalAmount, participants)
+Implementations: EqualSplitStrategy, ExactSplitStrategy, PercentageSplitStrategy
+Used by: ExpenseService/SplitService
 ```
 
 ### 7. Factory And Builder Patterns
 
-Status: Not Started
+Status: Completed
 
 Exercise:
 
@@ -308,24 +360,28 @@ Where would you use Factory and Builder in these systems?
 My Answer:
 
 ```text
-TODO
+Parking Lot: Factory for various payment methods.
+Notification System: Factory for different notification systems.
+BookMyShow: Both; Factory for booking information sent by phone/email, Builder for building a user with optional fields.
 ```
 
 Review:
 
 ```text
-TODO
+The Factory choices are valid. For BookMyShow, use the Builder for the complex Booking object rather than User; booking can have required and optional details.
 ```
 
 Improved Design Answer:
 
 ```text
-TODO
+Parking Lot: Factory for vehicle, slot, payment, or pricing implementations by type.
+Notification System: Factory for EmailSender, SmsSender, or PushSender by channel.
+BookMyShow: NotificationFactory chooses a sender; Booking.Builder constructs a Booking with required user/show/seats and optional coupon, payment, notes, or preferences.
 ```
 
 ### 8. State And Observer Patterns
 
-Status: Not Started
+Status: Completed
 
 Exercise:
 
@@ -339,24 +395,28 @@ For BookMyShow booking:
 My Answer:
 
 ```text
-TODO
+States: Booking_progress, Booking_completed, Booking_failed
+Transitions: not answered
+Observer: post booking to trigger notifications, update analytics, etc.
 ```
 
 Review:
 
 ```text
-TODO
+Observer use case is correct. Use business lifecycle states such as PENDING_PAYMENT and CONFIRMED rather than generic progress/completion labels. Explicitly list allowed transitions.
 ```
 
 Improved Design Answer:
 
 ```text
-TODO
+States: PENDING_PAYMENT, CONFIRMED, PAYMENT_FAILED, EXPIRED, CANCELLED.
+Transitions: pending payment can become confirmed, payment failed, expired, or cancelled; confirmed can become cancelled under policy.
+Observer: publish BookingConfirmedEvent to email/SMS/push notification, ticket generation, and analytics listeners.
 ```
 
 ### 9. Parking Lot Mini Design
 
-Status: Not Started
+Status: Completed
 
 Exercise:
 
@@ -374,19 +434,23 @@ Include:
 My Answer:
 
 ```text
-TODO
+Assumptions: variable number of floors; fixed slots per floor by vehicle type; fixed vehicle-type hourly pricing; park only when a matching slot is free; issue a ticket and present it at exit.
+Classes: ParkingLot, ParkingFloor, ParkingSlot, Vehicle, ParkingTicket.
+Relationships: ParkingLot has ParkingFloors; ParkingFloor has ParkingSlots; ParkingSlot has a VehicleType.
+Services: ParkingLotService, PaymentService, PricingStrategy.
+Edge case: not answered.
 ```
 
 Review:
 
 ```text
-TODO
+Strong assumptions and core entities. Add a ticket's links to vehicle, slot, and parking time; add a SlotAllocationService; and cover concurrent requests for the final available compatible slot.
 ```
 
 Improved Design Answer:
 
 ```text
-TODO
+ParkingLot contains floors, floors contain slots, occupied slots hold vehicles, and a ticket links vehicle, slot, entry time, and exit time. ParkingLotService coordinates the flow; SlotAllocationService reserves a compatible slot; PricingStrategy/FeeCalculator calculates fees; PaymentService closes payment. Edge case: atomically reserve the final compatible slot to prevent double allocation.
 ```
 
 ### 10. BookMyShow Mini Design
