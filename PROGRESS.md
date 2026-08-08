@@ -57,7 +57,7 @@ Current gaps:
 
 | Module | Topic | Status |
 |---|---|---|
-| 1 | LLD fundamentals | Not Started |
+| 1 | LLD fundamentals | In Progress — requirements, scope, and assumptions |
 | 2 | OOP modeling | Not Started |
 | 3 | SOLID principles | Not Started |
 | 4 | Class relationships | Not Started |
@@ -521,7 +521,7 @@ Expense has a payer and many Splits; each Split belongs to a user. Balance recor
 
 ## Final LLD Checklist
 
-Status: Not Started
+Status: Completed
 
 Before approaching any LLD problem:
 
@@ -542,14 +542,43 @@ Before approaching any LLD problem:
 14. Mention extensibility.
 ```
 
+Exercise:
+
+```text
+Apply the checklist to a snack-and-drink vending machine that supports slot-code selection, cash/coins, dispensing products and change, and operator restocking.
+```
+
+My Answer:
+
+```text
+Clarifying questions: How does the customer select a product? How does the customer provide cash/coins?
+Entities: Product, Operator, Stock, Slot.
+State transitions: a slot can be loaded or unloaded.
+Edge case: only one product can be bought per transaction; no automatic stock refill.
+Concurrency concern: two products being loaded into the same slot.
+Flow: customer selects a slot; the price is shown; they insert cash/coins and submit; request the remaining balance or return change; unload the product into the basket.
+```
+
+Review:
+
+```text
+The customer flow is clear and covers underpayment and change. Product, Slot, and Operator are useful domain concepts; model Stock as a quantity on Slot or as Inventory rather than a standalone item. Loaded/unloaded is slot availability, but transaction states better describe the purchase lifecycle. “One item per transaction” is a scope decision and automatic refilling is a future extension, not an edge case. The important concurrency risk is two customers buying the final item in a slot at the same time.
+```
+
+Improved Design Answer:
+
+```text
+Core entities: Product, Slot (product, price, quantity), VendingMachine, Payment/Transaction, and Operator. A purchase can move from SELECTING to PAYMENT_PENDING, PAID, DISPENSED, or CANCELLED/REFUNDED. An edge case is insufficient stock after selection or insufficient change. Atomically reserve/decrement the final unit so two simultaneous purchases cannot both dispense it. Flow: select a slot, validate stock, accept payment, validate amount, reserve inventory, dispense product and change, then complete the transaction.
+```
+
 ## Final Self-Rating
 
 Before sprint: `3/10`
 
-After sprint: `TODO`
+After sprint: `Ready to begin Phase 2`
 
 Notes:
 
 ```text
-TODO
+Completed the 3-hour sprint exercises. Continue with Phase 2, Module 1: LLD fundamentals.
 ```
