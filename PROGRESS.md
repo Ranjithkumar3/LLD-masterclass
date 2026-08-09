@@ -57,7 +57,7 @@ Current gaps:
 
 | Module | Topic | Status |
 |---|---|---|
-| 1 | LLD fundamentals | In Progress — requirements, scope, and assumptions |
+| 1 | LLD fundamentals | Completed — requirements, scope, entities, relationships, responsibilities, flows, and Car Rental consolidation exercise |
 | 2 | OOP modeling | Not Started |
 | 3 | SOLID principles | Not Started |
 | 4 | Class relationships | Not Started |
@@ -67,6 +67,46 @@ Current gaps:
 | 8 | API and service design | Not Started |
 | 9 | Common design mistakes | Not Started |
 | 10 | Full cheat sheet | Not Started |
+
+### Module 1 Summary: LLD Fundamentals
+
+- Start with scope, not classes. Ask clarifying questions and state assumptions when requirements are missing.
+  - **Library:** physical copies or e-books? Single or multiple branches? Are fines included?
+  - **Parking Lot:** vehicle types? Pricing model? Reservations?
+  - **BookMyShow:** seat-hold duration? Cancellation policy? Payment methods?
+- Separate requirements:
+  - **Functional:** what the system does—Library borrows/returns/reserves copies; Parking Lot parks, tickets, pays, and exits; Splitwise adds expenses, calculates splits, and settles balances.
+  - **Non-functional:** constraints or quality attributes—a library copy must not be borrowed twice; a BookMyShow seat must not be confirmed for two users; final compatible parking-slot allocation must be consistent.
+  - **Out of scope:** deliberately excluded features, such as multi-branch libraries, parking reservations, or Splitwise friend management.
+- Identify entities by identity and lifecycle:
+  - **Library:** `Book`, `BookCopy`, `Member`, `Loan`, `Reservation`.
+  - **Parking Lot:** `ParkingLot`, `ParkingFloor`, `ParkingSlot`, `Vehicle`, `ParkingTicket`.
+  - **Splitwise:** `User`, `Group`, `Expense`, `Split`, `Settlement`.
+  - Value objects hold descriptive values, such as `Money` or `LoanDueDate`; states belong to entities, such as `BookCopy` availability or `ParkingSlot` occupancy.
+- Model relationships with direction: `Book -> BookCopy`, `ParkingFloor -> ParkingSlot`, and `Expense -> Split` are one-to-many; `Member -> Loan` is one-to-many over time.
+- Keep responsibilities focused: `LoanService` coordinates borrowing while `BookCopy` controls availability; `SlotAllocationService` reserves a parking slot; `ExpenseService` records an expense while `SplitStrategy` calculates allocations.
+- Walk through a main flow and at least one failure path:
+  - **Library:** validate, check availability, create loan, mark borrowed.
+  - **Parking Lot:** find compatible slot, reserve it, issue ticket; reject when no slot is available.
+  - **BookMyShow:** hold seats, take payment, confirm booking; release seats after payment failure or hold expiry.
+
+Core habit: clarify scope -> identify requirements -> model entities and relationships -> assign responsibilities -> explain flows, edge cases, and extensibility.
+
+#### Consolidation Exercise: Car Rental System
+
+Scope: single branch; customers search available cars by category/date range, reserve, pick up, and return cars; staff add cars and mark maintenance. Payments, authentication, delivery, discounts, and multi-branch support are excluded.
+
+Learner answer and review:
+
+- **Functional requirements:** search by category/date range; reserve, pick up, and return a car; staff add/update cars. Correct.
+- **Constraints:** prevent overlapping reservations for the same car; keep the assigned car linked to pickup/return. Refined constraint: availability must be checked and reserved atomically for overlapping date ranges.
+- **Core entities:** Customer, Car, Staff, Reservation. Added `Rental` to model the pickup-to-return lifecycle. `RentalSystem` is a system boundary, not a core entity; car identity is a fleet ID/VIN, while category and availability are attributes/state.
+- **Relationships:** Customer -> Reservation is one-to-many; Car -> Reservation and Car -> Rental are one-to-many over time; Reservation -> Rental is one-to-zero-or-one because a reservation may expire or cancel.
+- **Services:** CarSearchService, ReservationService, RentalService, and FleetManagementService. Correct focused responsibility split.
+- **Reservation flow:** search by category/date range -> select car -> recheck availability -> atomically create reservation -> confirm or reject. Pickup creates a Rental; return completes it and leaves the car available or under maintenance.
+- **Concurrency concern:** two customers attempting overlapping reservations concurrently. Correct.
+- **Edge case:** a reserved car becomes under maintenance before pickup; reject pickup and offer a replacement/notification.
+- **Extension:** payments. Add a PaymentService that depends on a PaymentMethod interface so payment types vary without changing reservation/rental logic.
 
 ## Phase 3: Pattern Deep Dives
 
