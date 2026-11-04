@@ -1,4 +1,4 @@
-package com.example.lld.dip;
+package solid.dip;
 
 public interface PaymentProcessor {
     void processPayment();
