@@ -12,4 +12,26 @@ public class SortingUtility {
             }
         }
     }
+
+    //Method Overloading
+    public static void printData(int num) {
+        System.out.println("Number: " + num);
+    }
+
+    public static void printData(char c) {
+        System.out.println("Char: " + c);
+    }
+
+    public static void getMax(int a, int b) {
+        System.out.println("Max of 2 ints: "+Math.max(a, b));
+    }
+
+    public static void getMax(long a, long b) {
+        System.out.println("Max of 2 longs: "+Math.max(a, b));
+    }
+
+    public static void main(String[] args) {
+        getMax(1,2);
+        getMax(1, 2L); //1 gets promoted to long
+    }
 }
