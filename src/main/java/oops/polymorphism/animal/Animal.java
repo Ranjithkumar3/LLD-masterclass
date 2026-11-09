@@ -1,4 +1,4 @@
-package oops.polymorphism;
+package oops.polymorphism.animal;
 
 public interface Animal {
     String speak();
