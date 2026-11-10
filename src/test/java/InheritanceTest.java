@@ -1,3 +1,5 @@
+import constructs.abstractclass.Animal;
+import constructs.abstractclass.Dog;
 import oops.inheritance.ComputerPlayer;
 import oops.inheritance.GameUtility;
 import oops.inheritance.HumanPlayer;
@@ -9,6 +11,7 @@ import java.util.List;
 
 public class InheritanceTest {
     GameUtility gameUtility = new GameUtility();
+    Animal dogAnimal = new Dog("Johnny");
 
     @Test
     void inheritPlayers() {
@@ -20,5 +23,8 @@ public class InheritanceTest {
         players.add(hum);
 
         gameUtility.gameBegins(players);
+        dogAnimal.speak();
+        dogAnimal.move();
+        dogAnimal.printName();
     }
 }
